@@ -25,6 +25,8 @@ var shorty  = require('./lib/shorty'),
     cluster = require('cluster'),
     numCPUs = require('os').cpus().length;
 
+var messageId = 0;
+
 if (cluster.isMaster) {
     for (var i = 0; i < numCPUs; i++) {
         cluster.fork();
@@ -48,17 +50,17 @@ if (cluster.isMaster) {
         console.log("sms marked as delivered: " + pdu.sequence_number);
     });
 
-    shortyServer.on('submit_sm', function(client, pdu) {
-        console.log(mySms.sender + ' -> ' + mySms.recipient + ': ' + mySms.message);
+    shortyServer.on('submit_sm', function(client, pdu, callback) {
         console.log("submit_sm from " + client.config.system_id);
 
+        var source = pdu.source_addr.toString('ascii');
         // Any messages sent from this number will fail
-        if (mySms.sender === "15555551234") {
+        if (source === "15555551234") {
             // indicate failure
-            responseCallback(mySms, false, messageId++);
+            callback("ESME_RSUBMITFAIL", messageId++);
         } else {
             // indicate success
-            responseCallback(mySms, true, messageId++);
+            callback("ESME_ROK", messageId++);
         }
     });
 

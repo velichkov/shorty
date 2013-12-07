@@ -56,7 +56,7 @@ shortyServer.on('submit_sm', function(clientInfo, pdu, callback) {
     console.log(pdu.short_message.toString('ascii'));
 
     // Any messages sent from this number will fail
-    if (pdu.sender === "15555551234") {
+    if (source == "15555551234") {
         // indicate failure
         callback("ESME_RSUBMITFAIL", messageId++);
     } else {
